@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .. import crud, schemas, models
 from ..auth import get_current_active_user
@@ -9,11 +9,13 @@ from ..database import get_db
 
 router = APIRouter(prefix="/api/budgets", tags=["budgets"])
 
+_now = datetime.now(timezone.utc)
+
 
 @router.get("/", response_model=List[schemas.BudgetResponse])
 def list_budgets(
-    month: int = datetime.utcnow().month,
-    year: int = datetime.utcnow().year,
+    month: int = _now.month,
+    year: int = _now.year,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user),
 ):

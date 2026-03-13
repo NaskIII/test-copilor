@@ -1,9 +1,13 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum, Boolean, Text
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 import enum
 
 from .database import Base
+
+
+def _utcnow():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class TransactionType(str, enum.Enum):
@@ -19,7 +23,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
 
     transactions = relationship("Transaction", back_populates="owner", cascade="all, delete-orphan")
     categories = relationship("Category", back_populates="owner", cascade="all, delete-orphan")
@@ -35,7 +39,7 @@ class Category(Base):
     color = Column(String(20), default="#3f51b5")
     type = Column(Enum(TransactionType), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
 
     owner = relationship("User", back_populates="categories")
     transactions = relationship("Transaction", back_populates="category")
@@ -50,10 +54,10 @@ class Transaction(Base):
     description = Column(String(500))
     notes = Column(Text, nullable=True)
     type = Column(Enum(TransactionType), nullable=False)
-    date = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date = Column(DateTime, nullable=False, default=_utcnow)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
 
     owner = relationship("User", back_populates="transactions")
     category = relationship("Category", back_populates="transactions")
@@ -68,7 +72,7 @@ class Budget(Base):
     year = Column(Integer, nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=_utcnow)
 
     owner = relationship("User", back_populates="budgets")
     category = relationship("Category", back_populates="budgets")

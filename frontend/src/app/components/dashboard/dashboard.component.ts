@@ -7,19 +7,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import {
-  Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale,
-  BarElement, LineElement, PointElement, Filler, Title
-} from 'chart.js';
 
 import { ReportService } from '../../services/report.service';
 import { TransactionService } from '../../services/transaction.service';
 import { ReportResponse, Transaction } from '../../models/models';
-
-Chart.register(
-  ArcElement, Tooltip, Legend, CategoryScale, LinearScale,
-  BarElement, LineElement, PointElement, Filler, Title
-);
 
 @Component({
   selector: 'app-dashboard',

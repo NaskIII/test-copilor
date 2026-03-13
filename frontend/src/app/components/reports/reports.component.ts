@@ -10,15 +10,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import {
-  Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale,
-  BarElement, LineElement, PointElement, Filler, Title
-} from 'chart.js';
 
 import { ReportService } from '../../services/report.service';
 import { ReportResponse, MonthlySummary, CategorySummary } from '../../models/models';
-
-Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Filler, Title);
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
