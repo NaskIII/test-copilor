@@ -1,0 +1,77 @@
+# ──────────────────────────────────────────────────────────────────
+# docker-compose.yml — FinançasPro
+#
+# Inicia o backend (FastAPI) e, opcionalmente, um banco PostgreSQL.
+#
+# Uso rápido com SQLite (padrão):
+#   docker compose up backend
+#
+# Uso com PostgreSQL:
+#   docker compose --profile postgres up
+# ──────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+  # ──────────── Backend FastAPI ────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: financaspro-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persiste o arquivo SQLite entre reinicializações
+      - sqlite_data:/app/data
+    environment:
+      # SQLite (padrão) — arquivo criado dentro do volume
+      DATABASE_URL: sqlite:////app/data/finance.db
+      # Para PostgreSQL, comente a linha acima e descomente abaixo:
+      # DATABASE_URL: postgresql://financas:financas@db:5432/financaspro
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false   # Não bloqueia quando o perfil postgres não está ativo
+    restart: unless-stopped
+
+  # ──────────── Frontend Angular ────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: financaspro-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ──────────── PostgreSQL (opcional) ────────────
+  # Ative com:  docker compose --profile postgres up
+  db:
+    image: postgres:16-alpine
+    container_name: financaspro-db
+    profiles:
+      - postgres
+    environment:
+      POSTGRES_USER: financas
+      POSTGRES_PASSWORD: financas
+      POSTGRES_DB: financaspro
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financas -d financaspro"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+  postgres_data:
